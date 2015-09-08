@@ -17,7 +17,9 @@ def get_today_subjects():
 
 
 def get_time_delta(tm1, tm2):
-    t = lambda x: time.mktime(time.strptime(x, "%H:%M"))
+    tm1 = '2015:' + tm1
+    tm2 = '2015:' + tm2
+    t = lambda x: time.mktime(time.strptime(x, "%Y:%H:%M"))
     return t(tm2) - t(tm1)
 
 
