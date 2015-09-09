@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import json
 import time
+from pluralization import s1, s2
 
 timetable = json.load(open("timetable.json"))
 subjects = json.load(open("subjects.json"))
@@ -25,13 +26,19 @@ def get_time_delta(tm1, tm2):
 
 def get_next_subject():
     now = time.strftime("%H:%M")
+
+    if time.localtime().tm_wday == 6:
+        return None, get_time_delta(now, "00:00") + 24 * 3600
+
     subjects = get_today_subjects()
     for x in range(len(subjects)):
         if is_now(now, subjects[x]):
             return subjects[x], get_time_delta(subjects[x]["end"], now)
         if is_later(now, subjects[x]):
             return subjects[x], get_time_delta(now, subjects[x]["start"])
-    return None, None
+    if time.localtime().tm_wday == 6:
+        return None, get_time_delta(now, "00:00") + 24 * 3600
+    return None, 0
 
 
 def get_tomorrow_subjects():
@@ -71,3 +78,15 @@ def make_short_subject(subject):
     if "room" in subject:
         result = u"{:4} {}".format(subject["room"], result)
     return result
+
+
+def make_human_time(tm):
+    hours, mins = tuple(map(int, tm.split(':')))
+    if hours > 0:
+        if mins > 0:
+            return "{} час{} {} минут{}".format(hours, s1(hours),
+                    mins, s2(mins))
+        else:
+            return "{} час{}".format(hours, s1(hours))
+    else:
+        return "{} минут{}".format(mins, s2(mins))
